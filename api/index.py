@@ -12,8 +12,7 @@ except ImportError:
     from db import get_connection
 
 # Determine paths for templates and static files bundled with the function.
-# Go up one level to project root where templates/ and static/ are located
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = str(BASE_DIR / "templates")
 STATIC_DIR = str(BASE_DIR / "static")
 
@@ -72,12 +71,16 @@ def login_required(fn):
 
 @app.before_request
 def ensure_schema():
-    if request.path in {"/favicon.ico"} or request.path.startswith("/static/"):
+    if request.path in {"/favicon.ico", "/health"} or request.path.startswith("/static/"):
         return
 
     if not getattr(app, "_schema_ready", False):
-        init_db()
-        app._schema_ready = True
+        try:
+            init_db()
+            app._schema_ready = True
+        except Exception as e:
+            print(f"Failed to initialize database: {e}")
+            # Continue anyway - error will show in logs
 
 
 # ---------------- AUTH ----------------
@@ -363,4 +366,9 @@ def favicon():
 
 
 # Export the app for WSGI (required by Vercel)
+# The 'app' variable is the Flask application instance
 __all__ = ["app"]
+
+# For Vercel serverless functions, export the handler
+# Vercel looks for a handler callable
+handler = app
