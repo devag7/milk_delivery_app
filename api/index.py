@@ -6,7 +6,10 @@ from pathlib import Path
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from db import get_connection
+try:
+    from .db import get_connection
+except ImportError:
+    from db import get_connection
 
 # Determine correct paths for templates and static files
 BASE_DIR = Path(__file__).resolve().parent.parent
