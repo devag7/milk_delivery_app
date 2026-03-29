@@ -16,6 +16,11 @@ BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = str(BASE_DIR / "templates")
 STATIC_DIR = str(BASE_DIR / "static")
 
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"TEMPLATE_DIR: {TEMPLATE_DIR}")
+print(f"STATIC_DIR: {STATIC_DIR}")
+print(f"Template exists: {(BASE_DIR / 'templates').exists()}")
+
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 app.secret_key = "milk-delivery-local-secret"
 
@@ -365,10 +370,4 @@ def favicon():
     return "", 204
 
 
-# Export the app for WSGI (required by Vercel)
-# The 'app' variable is the Flask application instance
-__all__ = ["app"]
-
-# For Vercel serverless functions, export the handler
-# Vercel looks for a handler callable
-handler = app
+# The Flask app is already exported as 'app' for Vercel WSGI
