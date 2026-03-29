@@ -1,12 +1,19 @@
 import sqlite3
+import os
 from functools import wraps
+from pathlib import Path
 
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import get_connection
 
-app = Flask(__name__, template_folder="../templates", static_folder="../static")
+# Determine correct paths for templates and static files
+BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATE_DIR = str(BASE_DIR / "templates")
+STATIC_DIR = str(BASE_DIR / "static")
+
+app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 app.secret_key = "milk-delivery-local-secret"
 
 
@@ -39,8 +46,12 @@ def init_db():
         )
         conn.commit()
         conn.close()
+        print("✅ Database initialized successfully")
     except Exception as e:
-        print(f"DB init error: {e}")
+        import traceback
+        error_msg = f"DB init error: {str(e)}\n{traceback.format_exc()}"
+        print(error_msg)
+        raise
 
 
 def login_required(fn):
@@ -312,3 +323,32 @@ def invoice(customer_id):
         "total": float(customer[5]),
     }
     return render_template("invoice.html", customer=payload)
+
+
+# Error handlers for better debugging
+@app.errorhandler(Exception)
+def handle_error(e):
+    import traceback
+    print(f"ERROR: {str(e)}")
+    print(traceback.format_exc())
+    return {"error": "Internal Server Error", "details": str(e)}, 500
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return {"error": "Page not found"}, 404
+
+
+# Health check endpoint
+@app.route("/health", methods=["GET"])
+def health():
+    try:
+        conn = get_connection()
+        conn.close()
+        return {"status": "ok", "message": "Server is running"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
+
+
+# Export the app for WSGI (required by Vercel)
+__all__ = ["app"]
