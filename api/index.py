@@ -71,6 +71,9 @@ def login_required(fn):
 
 @app.before_request
 def ensure_schema():
+    if request.path in {"/favicon.ico"} or request.path.startswith("/static/"):
+        return
+
     if not getattr(app, "_schema_ready", False):
         init_db()
         app._schema_ready = True
@@ -351,6 +354,11 @@ def health():
         return {"status": "ok", "message": "Server is running"}
     except Exception as e:
         return {"status": "error", "message": str(e)}, 500
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return "", 204
 
 
 # Export the app for WSGI (required by Vercel)
