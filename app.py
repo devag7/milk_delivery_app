@@ -1,4 +1,4 @@
-import os
+import sqlite3
 from functools import wraps
 
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from db import get_connection
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
+app.secret_key = "milk-delivery-local-secret"
 
 
 def init_db():
@@ -16,7 +16,7 @@ def init_db():
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             username VARCHAR(120) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -26,12 +26,12 @@ def init_db():
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS customers (
-            id SERIAL PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             name VARCHAR(120) NOT NULL,
             milk VARCHAR(120) NOT NULL,
-            quantity NUMERIC(10,2) NOT NULL,
-            price_per_liter NUMERIC(10,2) NOT NULL,
-            total NUMERIC(12,2) NOT NULL,
+            quantity REAL NOT NULL,
+            price_per_liter REAL NOT NULL,
+            total REAL NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """
@@ -78,11 +78,11 @@ def signup():
     cur = conn.cursor()
     try:
         cur.execute(
-            "INSERT INTO users (username, password) VALUES (%s, %s)",
+            "INSERT INTO users (username, password) VALUES (?, ?)",
             (username, hashed_password),
         )
         conn.commit()
-    except Exception:
+    except sqlite3.IntegrityError:
         conn.rollback()
         conn.close()
         return jsonify({"success": False, "message": "Username already exists."}), 409
@@ -102,7 +102,7 @@ def login():
 
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, username, password FROM users WHERE username=%s", (username,))
+    cur.execute("SELECT id, username, password FROM users WHERE username=?", (username,))
     user = cur.fetchone()
     conn.close()
 
@@ -194,7 +194,7 @@ def add_customer():
     cur.execute(
         """
         INSERT INTO customers (name, milk, quantity, price_per_liter, total)
-        VALUES (%s, %s, %s, %s, %s)
+        VALUES (?, ?, ?, ?, ?)
         """,
         (name, milk, quantity, price_per_liter, total),
     )
@@ -224,8 +224,8 @@ def update_customer(customer_id):
     cur.execute(
         """
         UPDATE customers
-        SET name=%s, milk=%s, quantity=%s, price_per_liter=%s, total=%s
-        WHERE id=%s
+        SET name=?, milk=?, quantity=?, price_per_liter=?, total=?
+        WHERE id=?
         """,
         (name, milk, quantity, price_per_liter, total, customer_id),
     )
@@ -244,7 +244,7 @@ def update_customer(customer_id):
 def delete_customer(customer_id):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM customers WHERE id=%s", (customer_id,))
+    cur.execute("DELETE FROM customers WHERE id=?", (customer_id,))
     deleted = cur.rowcount
     conn.commit()
     conn.close()
@@ -290,7 +290,7 @@ def invoice(customer_id):
         """
         SELECT id, name, milk, quantity, price_per_liter, total
         FROM customers
-        WHERE id=%s
+        WHERE id=?
         """,
         (customer_id,),
     )

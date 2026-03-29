@@ -8,7 +8,7 @@ A Flask-based web application for managing milk delivery customers, billing, and
 - **Customer Management**: Add, update, delete customers
 - **Billing**: Invoice generation and printing
 - **Reports**: Dashboard with revenue analytics
-- **Database**: PostgreSQL with secure connections
+- **Database**: Built-in SQLite (local file, no external DB needed)
 
 ## Local Setup
 
@@ -29,34 +29,17 @@ A Flask-based web application for managing milk delivery customers, billing, and
    pip install -r requirements.txt
    ```
 
-4. **Set up environment variables** (create `.env` file)
-   ```
-   FLASK_ENV=development
-   SECRET_KEY=your-secret-key-change-this
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=mydib
-   DB_USER=postgres
-   DB_PASSWORD=your-password
-   ```
-
-5. **Create PostgreSQL database**
-   ```sql
-   CREATE DATABASE mydib;
-   ```
-
-6. **Run the application**
+4. **Run the application**
    ```bash
    python app.py
    ```
 
-Visit `http://localhost:5000` and sign up for a new account.
+Visit `http://localhost:5000` and sign up for a new account. The local database file `milk_delivery.db` is created automatically.
 
 ## Deployment to Vercel
 
 ### Prerequisites
 - Vercel account
-- PostgreSQL database (use Vercel Postgres or external service)
 - Git repository
 
 ### Steps
@@ -100,16 +83,9 @@ Visit `http://localhost:5000` and sign up for a new account.
    - Go to https://vercel.com
    - Click "New Project"
    - Import GitHub repository
-   - Add environment variables:
-     - `SECRET_KEY`: Your secret key
-     - `DATABASE_URL`: Your PostgreSQL connection string
    - Click Deploy
 
-### Environment Variables for Vercel
-```
-SECRET_KEY=<generate-a-strong-key>
-DATABASE_URL=postgresql://user:password@host:port/database
-```
+Note: Vercel serverless filesystem is ephemeral, so SQLite data may reset between deployments or cold starts. For persistent production data, an external database is required.
 
 ## API Endpoints
 
@@ -128,10 +104,10 @@ DATABASE_URL=postgresql://user:password@host:port/database
 ```
 milk_delivery_app/
 ├── app.py                  # Main Flask application
-├── db.py                   # Database connection
+├── db.py                   # SQLite database connection
+├── milk_delivery.db        # Auto-created SQLite DB file
 ├── requirements.txt        # Python dependencies
 ├── vercel.json            # Vercel configuration
-├── .env                   # Environment variables (not committed)
 └── templates/
     ├── index.html         # Dashboard
     ├── login.html         # Login page
@@ -145,7 +121,7 @@ milk_delivery_app/
 ## Technologies Used
 
 - Flask - Web framework
-- PostgreSQL - Database
+- SQLite - Local embedded database
 - Bootstrap - UI framework
 - Chart.js - Analytics charts
 - Werkzeug - Password hashing
