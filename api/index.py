@@ -12,7 +12,8 @@ except ImportError:
     from db import get_connection
 
 # Determine paths for templates and static files bundled with the function.
-BASE_DIR = Path(__file__).resolve().parent
+# Go up one level to project root where templates/ and static/ are located
+BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = str(BASE_DIR / "templates")
 STATIC_DIR = str(BASE_DIR / "static")
 
