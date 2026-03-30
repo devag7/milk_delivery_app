@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
-import { verifyPassword, createSession } from '@/lib/auth';
+import { getUserByUsername, createSession, verifyPassword } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -10,13 +9,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Username and password required' }, { status: 400 });
   }
 
-  const db = getDb();
-  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username) as {
-    id: number;
-    username: string;
-    password: string;
-  } | undefined;
-
+  const user = getUserByUsername(username);
   if (!user) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }

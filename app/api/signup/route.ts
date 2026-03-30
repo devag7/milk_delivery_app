@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
-import { hashPassword, createSession } from '@/lib/auth';
+import { getUserByUsername, createUser, createSession, hashPassword } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -10,20 +9,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Username and password required' }, { status: 400 });
   }
 
-  const db = getDb();
-  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
-
+  const existing = getUserByUsername(username);
   if (existing) {
     return NextResponse.json({ error: 'Username already exists' }, { status: 400 });
   }
 
   const hashedPassword = await hashPassword(password);
-  const result = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)').run(username, hashedPassword);
+  const user = createUser(username, hashedPassword);
 
-  const user = db.prepare('SELECT id, username FROM users WHERE id = ?').get(result.lastInsertRowid);
   const session = await createSession({
-    userId: (user as { id: number }).id,
-    username: (user as { username: string }).username,
+    userId: user.id,
+    username: user.username,
     exp: Date.now() + 24 * 60 * 60 * 1000,
   });
 

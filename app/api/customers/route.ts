@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
-import { getSessionFromCookies } from '@/lib/auth';
+import { getAllCustomers, createCustomer, getSessionFromCookies } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   const session = await getSessionFromCookies(request.headers.get('cookie') || '');
@@ -8,8 +7,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const db = getDb();
-  const customers = db.prepare('SELECT * FROM customers ORDER BY created_at DESC').all();
+  const customers = getAllCustomers();
   return NextResponse.json(customers);
 }
 
@@ -26,13 +24,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const total = quantity * price_per_liter;
-  const db = getDb();
-  const result = db.prepare(`
-    INSERT INTO customers (name, milk, quantity, price_per_liter, total)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(name, milk, quantity, price_per_liter, total);
-
-  const customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(result.lastInsertRowid);
+  const customer = createCustomer(name, milk, quantity, price_per_liter);
   return NextResponse.json(customer, { status: 201 });
 }

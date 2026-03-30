@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
-import { getSessionFromCookies } from '@/lib/auth';
+import { getCustomerById, updateCustomer, deleteCustomer, getSessionFromCookies } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
@@ -11,9 +10,7 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const db = getDb();
-  const customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(params.id);
-
+  const customer = getCustomerById(parseInt(params.id));
   if (!customer) {
     return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
   }
@@ -37,15 +34,11 @@ export async function PUT(
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const total = quantity * price_per_liter;
-  const db = getDb();
-  db.prepare(`
-    UPDATE customers
-    SET name = ?, milk = ?, quantity = ?, price_per_liter = ?, total = ?
-    WHERE id = ?
-  `).run(name, milk, quantity, price_per_liter, total, params.id);
+  const customer = updateCustomer(parseInt(params.id), name, milk, quantity, price_per_liter);
+  if (!customer) {
+    return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+  }
 
-  const customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(params.id);
   return NextResponse.json(customer);
 }
 
@@ -58,7 +51,10 @@ export async function DELETE(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const db = getDb();
-  db.prepare('DELETE FROM customers WHERE id = ?').run(params.id);
+  const success = deleteCustomer(parseInt(params.id));
+  if (!success) {
+    return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+  }
+
   return NextResponse.json({ success: true });
 }
