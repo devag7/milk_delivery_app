@@ -1,131 +1,70 @@
 # Milk Delivery App
 
-A Flask-based web application for managing milk delivery customers, billing, and reporting.
+A simple milk delivery management application built with Next.js 14.
 
 ## Features
 
-- **User Authentication**: Signup and login with password hashing
-- **Customer Management**: Add, update, delete customers
-- **Billing**: Invoice generation and printing
-- **Reports**: Dashboard with revenue analytics
-- **Database**: Built-in SQLite (local file, no external DB needed)
+- User authentication (signup/login)
+- Customer management (CRUD)
+- Milk order tracking
+- Invoice generation
+- Dashboard with analytics
+- Reports by milk type
 
-## Local Setup
+## Tech Stack
 
-1. **Clone the repository**
-   ```bash
-   git clone <repo-url>
-   cd milk_delivery_app
-   ```
+- **Next.js 14** - React framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Better-SQLite3** - Database
+- **jose** - JWT authentication
+- **Chart.js** - Data visualization
 
-2. **Create virtual environment**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Getting Started
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Install dependencies
 
-4. **Run the application**
-   ```bash
-   python app.py
-   ```
+```bash
+npm install
+```
 
-Visit `http://localhost:5000` and sign up for a new account. The local database file `milk_delivery.db` is created automatically.
+### Run development server
 
-## Deployment to Vercel
+```bash
+npm run dev
+```
 
-### Prerequisites
-- Vercel account
-- Git repository
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Steps
+## Deploy to Vercel
 
-1. **Create `vercel.json`** in project root
-   ```json
-   {
-     "version": 2,
-     "builds": [
-       {
-         "src": "app.py",
-         "use": "@vercel/python"
-       }
-     ],
-     "routes": [
-       {
-         "src": "/(.*)",
-         "dest": "app.py"
-       }
-     ]
-   }
-   ```
+1. Push your code to GitHub
+2. Import your repository to Vercel
+3. Deploy!
 
-2. **Create `.vercelignore`**
-   ```
-   __pycache__
-   *.pyc
-   .env
-   .git
-   venv
-   ```
-
-3. **Push to GitHub**
-   ```bash
-   git add .
-   git commit -m "Ready for deployment"
-   git push origin main
-   ```
-
-4. **Deploy on Vercel**
-   - Go to https://vercel.com
-   - Click "New Project"
-   - Import GitHub repository
-   - Click Deploy
-
-Note: Vercel serverless filesystem is ephemeral, so SQLite data may reset between deployments or cold starts. For persistent production data, an external database is required.
-
-## API Endpoints
-
-- `POST /signup` - Create new user
-- `POST /login` - Login user
-- `GET /logout` - Logout user
-- `GET /api/customers` - Get all customers
-- `POST /api/customers` - Add new customer
-- `PUT /api/customers/<id>` - Update customer
-- `DELETE /api/customers/<id>` - Delete customer
-- `GET /api/summary` - Get summary stats
-- `GET /invoice/<id>` - Get customer invoice
+No environment variables required.
 
 ## Project Structure
 
 ```
 milk_delivery_app/
-├── app.py                  # Main Flask application
-├── db.py                   # SQLite database connection
-├── milk_delivery.db        # Auto-created SQLite DB file
-├── requirements.txt        # Python dependencies
-├── vercel.json            # Vercel configuration
-└── templates/
-    ├── index.html         # Dashboard
-    ├── login.html         # Login page
-    ├── signup.html        # Sign up page
-    ├── customers.html     # Customers management
-    ├── billing.html       # Billing page
-    ├── reports.html       # Reports page
-    └── invoice.html       # Invoice template
+├── app/                  # Next.js app directory
+│   ├── (auth)/          # Auth pages (login, signup)
+│   ├── api/             # API routes
+│   ├── dashboard/       # Dashboard page
+│   ├── customers/       # Customer management
+│   ├── billing/         # Billing page
+│   ├── invoice/         # Invoice page
+│   ├── reports/         # Reports page
+│   ├── layout.tsx       # Root layout
+│   └── globals.css      # Global styles
+├── components/          # React components
+│   ├── Sidebar.tsx
+│   ├── CustomerForm.tsx
+│   ├── StatsCard.tsx
+│   └── RevenueChart.tsx
+├── lib/                 # Utilities
+│   ├── db.ts           # Database setup
+│   └── auth.ts         # Authentication utilities
+└── milk_delivery.db    # SQLite database (auto-created)
 ```
-
-## Technologies Used
-
-- Flask - Web framework
-- SQLite - Local embedded database
-- Bootstrap - UI framework
-- Chart.js - Analytics charts
-- Werkzeug - Password hashing
-
-## License
-
-MIT
