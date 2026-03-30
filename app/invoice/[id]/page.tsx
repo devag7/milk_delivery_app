@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
+import Sidebar from '../../../components/Sidebar';
 
 interface Customer {
   id: number;

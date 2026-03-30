@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
-import CustomerForm from '@/components/CustomerForm';
+import Sidebar from '../../components/Sidebar';
+import CustomerForm from '../../components/CustomerForm';
 
 interface Customer {
   id: number;

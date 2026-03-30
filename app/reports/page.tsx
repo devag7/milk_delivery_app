@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
-import StatsCard from '@/components/StatsCard';
-import RevenueChart from '@/components/RevenueChart';
+import Sidebar from '../../components/Sidebar';
+import StatsCard from '../../components/StatsCard';
+import RevenueChart from '../../components/RevenueChart';
 
 interface Customer {
   id: number;
