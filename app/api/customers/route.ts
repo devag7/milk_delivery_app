@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllCustomers, createCustomer, getSessionFromCookies } from '@/lib/db';
+import { getAllCustomers, createCustomer, getSessionFromCookies } from '../../../lib/db';
 
 export async function GET(request: NextRequest) {
   const session = await getSessionFromCookies(request.headers.get('cookie') || '');
